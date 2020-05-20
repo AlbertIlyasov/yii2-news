@@ -13,9 +13,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('Create News', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
+    <?php if(Yii::$app->user->identity): ?>
+        <p>
+            <?= Html::a('Create News', ['create'], ['class' => 'btn btn-success']) ?>
+        </p>
+    <?php endif; ?>
 
 
     <?= GridView::widget([
@@ -23,14 +25,19 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
-            'user_id',
             'title',
             'descr:ntext',
-            'created_at',
-            //'updated_at',
+            [
+                'attribute' => 'created_at',
+                'format' => ['date', 'php: F d, Y'],
+            ],
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => Yii::$app->user->identity
+                    ? '{view} {update} {delete}'
+                    : '{view}'
+            ],
         ],
     ]); ?>
 

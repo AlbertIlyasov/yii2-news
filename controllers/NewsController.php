@@ -8,6 +8,7 @@ use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * NewsController implements the CRUD actions for News model.
@@ -26,6 +27,17 @@ class NewsController extends Controller
                     'delete' => ['POST'],
                 ],
             ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['create', 'update', 'delete'],
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['create', 'update', 'delete'],
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -37,6 +49,9 @@ class NewsController extends Controller
     {
         $dataProvider = new ActiveDataProvider([
             'query' => News::find(),
+            'pagination' => [
+                'pageSize' => Yii::$app->params['newsPageSize'],
+            ],
         ]);
 
         return $this->render('index', [

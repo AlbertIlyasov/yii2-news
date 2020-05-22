@@ -8,6 +8,8 @@ use yii\web\IdentityInterface;
 
 class User extends ActiveRecord implements IdentityInterface
 {
+    const SCENARIO_UPDATE = 'update';
+
     /**
      * {@inheritdoc}
      */
@@ -82,6 +84,13 @@ class User extends ActiveRecord implements IdentityInterface
             return $parentResult;
         }
 
+        if (
+            $this->passwd
+            && in_array('passwd', $this->scenarios()[$this->getScenario()])
+        ) {
+            $this->passwd = Yii::$app->getSecurity()->generatePasswordHash($this->passwd);
+        }
+
         if (!$this->isNewRecord) {
             return true;
         }
@@ -91,5 +100,24 @@ class User extends ActiveRecord implements IdentityInterface
         } while (self::find()->where(['auth_key' => $this->auth_key])->asArray()->one());
 
         return true;
+    }
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $scenarios[self::SCENARIO_UPDATE] = ['email'];
+        return $scenarios;
+    }
+
+    public function rules()
+    {
+        return [
+            [['username', 'passwd', 'email'], 'trim'],
+            [['username', 'passwd', 'email'], 'required'],
+            ['username', 'string', 'max' => 30],
+            ['email', 'string', 'max' => 60],
+            ['email', 'email'],
+            [['username', 'email'], 'unique'],
+        ];
     }
 }

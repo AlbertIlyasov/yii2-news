@@ -25,6 +25,17 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'username',
             'email:email',
+            [
+                'attribute' => 'notificationTypes',
+                'format' => 'raw',
+                'value' => function($model) {
+                    $data = '';
+                    foreach ($model->notificationTypes as $notificationType) {
+                        $data .= $notificationType->notificationType->title . '<br>';
+                    }
+                    return $data;
+                },
+            ],
             'created_at',
             'updated_at',
         ],

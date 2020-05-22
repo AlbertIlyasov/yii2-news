@@ -120,4 +120,34 @@ class User extends ActiveRecord implements IdentityInterface
             [['username', 'email'], 'unique'],
         ];
     }
+
+    public function getNotificationTypes()
+    {
+        return $this->hasMany(UserNotification::class, ['user_id' => 'id']);
+    }
+
+    public function isNotificationAvailable(int $typeId): bool
+    {
+        //@todo logic
+        return true;
+    }
+
+    public function sendNotification(int $typeId): bool
+    {
+        return $this->isNotificationAvailable($typeId)
+            && $this->getNotificationManager()->send(
+                $this->username,
+                $this->email,
+                'Generic notification title',
+                'Generic notification body'
+            );
+    }
+
+    public function getNotificationManager(): NotificationManager
+    {
+        $notificationManager = new NotificationManager;
+        $notificationManager->addProvider(new EmailProvider);
+//        $notificationManager->addProvider(new TelegramProvider);
+        return $notificationManager;
+    }
 }
